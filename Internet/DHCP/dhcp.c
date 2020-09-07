@@ -53,6 +53,11 @@
 #include "socket.h"
 #include "dhcp.h"
 
+// Using memset to avoid 
+// "Unaligned memory access"
+// error in NCS/Zephyr 
+#include <string.h>
+
 /* If you want to display debug & processing message, Define _DHCP_DEBUG_ in dhcp.h */
 
 #ifdef _DHCP_DEBUG_
@@ -298,6 +303,12 @@ void makeDHCPMSG(void)
    uint8_t* ptmp;
    uint8_t  i;
    getSHAR(bk_mac);
+
+	// Using memset to avoid 
+	// "Unaligned memory access"
+	// error in NCS/Zephyr 
+	memset(pDHCPMSG, 0, sizeof(RIP_MSG));
+
 	pDHCPMSG->op      = DHCP_BOOTREQUEST;
 	pDHCPMSG->htype   = DHCP_HTYPE10MB;
 	pDHCPMSG->hlen    = DHCP_HLENETHERNET;
@@ -312,25 +323,29 @@ void makeDHCPMSG(void)
 	*(ptmp+0)         = (uint8_t)((DHCP_FLAGSBROADCAST & 0xFF00) >> 8);
 	*(ptmp+1)         = (uint8_t)((DHCP_FLAGSBROADCAST & 0x00FF) >> 0);
 
-	pDHCPMSG->ciaddr[0] = 0;
-	pDHCPMSG->ciaddr[1] = 0;
-	pDHCPMSG->ciaddr[2] = 0;
-	pDHCPMSG->ciaddr[3] = 0;
+	// Using memset to avoid 
+	// "Unaligned memory access"
+	// error in NCS/Zephyr 
 
-	pDHCPMSG->yiaddr[0] = 0;
-	pDHCPMSG->yiaddr[1] = 0;
-	pDHCPMSG->yiaddr[2] = 0;
-	pDHCPMSG->yiaddr[3] = 0;
+	// pDHCPMSG->ciaddr[0] = 0;
+	// pDHCPMSG->ciaddr[1] = 0;
+	// pDHCPMSG->ciaddr[2] = 0;
+	// pDHCPMSG->ciaddr[3] = 0;
 
-	pDHCPMSG->siaddr[0] = 0;
-	pDHCPMSG->siaddr[1] = 0;
-	pDHCPMSG->siaddr[2] = 0;
-	pDHCPMSG->siaddr[3] = 0;
+	// pDHCPMSG->yiaddr[0] = 0;
+	// pDHCPMSG->yiaddr[1] = 0;
+	// pDHCPMSG->yiaddr[2] = 0;
+	// pDHCPMSG->yiaddr[3] = 0;
 
-	pDHCPMSG->giaddr[0] = 0;
-	pDHCPMSG->giaddr[1] = 0;
-	pDHCPMSG->giaddr[2] = 0;
-	pDHCPMSG->giaddr[3] = 0;
+	// pDHCPMSG->siaddr[0] = 0;
+	// pDHCPMSG->siaddr[1] = 0;
+	// pDHCPMSG->siaddr[2] = 0;
+	// pDHCPMSG->siaddr[3] = 0;
+
+	// pDHCPMSG->giaddr[0] = 0;
+	// pDHCPMSG->giaddr[1] = 0;
+	// pDHCPMSG->giaddr[2] = 0;
+	// pDHCPMSG->giaddr[3] = 0;
 
 	pDHCPMSG->chaddr[0] = DHCP_CHADDR[0];
 	pDHCPMSG->chaddr[1] = DHCP_CHADDR[1];
@@ -601,7 +616,9 @@ int8_t parseDHCPMSG(void)
       printf("DHCP message : %d.%d.%d.%d(%d) %d received. \r\n",svr_addr[0],svr_addr[1],svr_addr[2], svr_addr[3],svr_port, len);
    #endif   
    }
-   else return 0;
+   else {
+	   return 0;
+   }
 	if (svr_port == DHCP_SERVER_PORT) {
       // compare mac address
 		if ( (pDHCPMSG->chaddr[0] != DHCP_CHADDR[0]) || (pDHCPMSG->chaddr[1] != DHCP_CHADDR[1]) ||

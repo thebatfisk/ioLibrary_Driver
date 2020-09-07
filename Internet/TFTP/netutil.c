@@ -50,7 +50,8 @@ uint32_t inet_addr(uint8_t* addr)
 	nexttok = taddr;
 	for(i = 0; i < 4 ; i++)
 	{
-		nexttok = (int8_t*)strtok((char*)nexttok,".");
+		// Changed from strtok to strtok_r to avoid NCS compile warning
+		nexttok = (int8_t*)strtok_r((char*)nexttok,".", (char**)&nexttok);
 		if(nexttok[0] == '0' && nexttok[1] == 'x') num = strtol((char*)nexttok+2, NULL, 16);
 		else num = strtol((char*)nexttok, NULL, 10);
 		inetaddr = inetaddr << 8;		
